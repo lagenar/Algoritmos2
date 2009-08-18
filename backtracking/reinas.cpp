@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 using namespace std;
-#define ABS(j) (j >= 0 ? j : -j)
+
 void mostrar_solucion(int R[], int n)
 {
   for (int i = 0; i < n; i++)  {
