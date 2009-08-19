@@ -5,8 +5,6 @@
   filas sea S
  */
 
-/*Nota: no consideré lo de que tienen que ser diferentes los n x n
- números, después lo cambio*/
 #include <iostream>
 
 using namespace std;
@@ -40,7 +38,7 @@ bool poda(int sumasParcialesFilas[], int sumasParcialesCols[],
 }
 
 bool backTablero(int *tablero[], int sumasParcialesFilas[],
-		 int sumasParcialesCols[], int fila, int col,
+		 int sumasParcialesCols[], bool usados[], int fila, int col,
 		 int K, int S, int n)
 {
   if(fila >= n) {
@@ -55,21 +53,25 @@ bool backTablero(int *tablero[], int sumasParcialesFilas[],
   bool pode = false;
   int j = 1;
   while(!sol && !pode && j <= K) {
-    if(poda(sumasParcialesFilas, sumasParcialesCols, fila,
-	    col, j, S))
-      pode = true;
-    else {
-      int prox_col, prox_fila;
-      prox_fila = (col == n - 1) ? fila + 1 : fila;
-      prox_col = (col == n - 1) ? 0 : col + 1;
-      tablero[fila][col] = j;
-      sumasParcialesFilas[fila] += j;
-      sumasParcialesCols[col] += j;
-      sol = backTablero(tablero, sumasParcialesFilas, sumasParcialesCols,
-			prox_fila, prox_col, K, S, n);
-      tablero[fila][col] = 0;
-      sumasParcialesFilas[fila] -= j;
-      sumasParcialesCols[col] -= j;
+    if(!usados[j]) {
+      if(poda(sumasParcialesFilas, sumasParcialesCols, fila,
+	      col, j, S))
+	pode = true;
+      else {
+	int prox_col, prox_fila;
+	prox_fila = (col == n - 1) ? fila + 1 : fila;
+	prox_col = (col == n - 1) ? 0 : col + 1;
+	usados[j] = true;
+	tablero[fila][col] = j;
+	sumasParcialesFilas[fila] += j;
+	sumasParcialesCols[col] += j;
+	sol = backTablero(tablero, sumasParcialesFilas, sumasParcialesCols, 
+			  usados, prox_fila, prox_col, K, S, n);
+	usados[j] = false;
+	tablero[fila][col] = 0;
+	sumasParcialesFilas[fila] -= j;
+	sumasParcialesCols[col] -= j;
+      }
     }
     j++;
   }
@@ -78,12 +80,16 @@ bool backTablero(int *tablero[], int sumasParcialesFilas[],
 
 int main(int argc, char *argv[])
 {
+  int k = 20;
+  bool usados[k];
   int f1[] = {0,0,0};
   int f2[] = {0,0,0};
   int f3[] = {0,0,0};
   int *tablero[] = { f1, f2, f3};
   int sumfilas[] = {0,0,0};
   int sumcols[] = {0,0,0};
-  backTablero(tablero, sumfilas, sumcols, 0, 0, 2, 4, 3);
+  for(int i = 1; i < k; i++)
+    usados[i] = false;
+  backTablero(tablero, sumfilas, sumcols, usados, 0, 0, k, 20, 3);
   return 0;
 }
