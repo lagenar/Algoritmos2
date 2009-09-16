@@ -195,7 +195,13 @@ template <typename Elem> Lista<Elem>::~Lista()
 
 template <typename Elem> Lista<Elem> & Lista<Elem>::operator = (const Lista & otraLista)
 {
-	
+	ConstIterador it = otraLista.devolverIterador();
+	while (!it.llegoAlFinal())
+	{
+		agregarFinal(it.elementoActual());
+		it.avanzar();
+	}
+	return *this;
 }
 
 template <typename Elem> bool Lista<Elem>::estaVacia() const

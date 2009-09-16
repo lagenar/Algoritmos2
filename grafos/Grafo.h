@@ -8,12 +8,18 @@ using namespace std;
 template <typename T, typename Z> class Par
 {
 public:
+	Par() { }
 	Par(const T & p, const Z & s)
 	{
 		primero = p;
 		segundo = s;
 	}
-
+	Par & operator = (const Par & otroPar)
+	{
+		primero = otroPar.primero;
+		segundo = otroPar.segundo;
+		return *this;
+	}
 	T primero;
 	Z segundo;
 };
@@ -86,7 +92,8 @@ private:
 	int cantidad_vertices;
 	ListaVert vertices;
 	
-	ConstItVert _buscarVertice(int vertice);
+	ItVert _buscarVertice(int vertice);
+	ConstItVert _buscarVertice(int vertice) const;
 	void _eliminarArcoVertice(ListaArc & arcos, int destino);
 
 }; // class Grafo
@@ -152,7 +159,26 @@ template <typename C> int Grafo<C>::devolverLongitud() const
 	return cantidad_vertices;
 }
 
-template <typename C> typename Grafo<C>::ConstItVert Grafo<C>::_buscarVertice(int vertice)
+template <typename C> typename Grafo<C>::ItVert Grafo<C>::_buscarVertice(int vertice)
+{
+	ItVert it = vertices.devolverIterador();
+	bool encontrado = false;
+	while (!it.llegoAlFinal() && !encontrado)
+	{
+		int v = it.elementoActual().primero;
+		if (v == vertice)
+		{
+			encontrado = true;
+		}
+		else
+		{
+			it.avanzar();
+		}
+	}
+	return it;
+}
+
+template <typename C> typename Grafo<C>::ConstItVert Grafo<C>::_buscarVertice(int vertice) const
 {
 	ConstItVert it = vertices.devolverIterador();
 	bool encontrado = false;
@@ -234,7 +260,7 @@ template <typename C> void Grafo<C>::devolverAdyacentes(int origen, Lista<Arco> 
 template <typename C> void Grafo<C>::agregarVertice(int vertice)
 {
 	ListaArc arcos;
-	vertices.agregarFinal(vertice, arcos);
+	vertices.agregarFinal(Par<int, ListaArc>(vertice, arcos));
 	cantidad_vertices++;
 }
 

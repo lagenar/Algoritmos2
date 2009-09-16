@@ -1,68 +1,70 @@
-#include "GrafoMapa.h"
-#include <list>
+#include "Grafo.h"
+#include "Lista.h"
+
 #include <string>
-#include <vector>
 #include <iostream>
 
 using namespace std;
 
-template <class V, class C>
-void dfs(const Grafo<V,C> & grafo, list<int> & recorrido,
-	 int v, vector<bool> & visitados)
+template <class C>
+void dfs(const Grafo<C> & grafo, Lista<int> & recorrido,
+	 int v, bool visitados[])
 {
 	visitados[v] = true;
 
-	list<pair<int, C> > adyacentes;
+	Lista<typename Grafo<C>::Arco> adyacentes;
 	grafo.devolverAdyacentes(v, adyacentes);
-	typename list<pair<int, C> >::iterator ady;
-	for (ady = adyacentes.begin(); ady != adyacentes.end(); ady++)
+	typename Lista<typename Grafo<C>::Arco>::Iterador ady = adyacentes.devolverIterador();
+	while (!ady.llegoAlFinal())
 	{
-		int w = ady->first;
+		int w = ady.elementoActual().devolverAdyacente();
 		if (!visitados[w])
 		{
 			dfs(grafo, recorrido, w, visitados);
 		}
-	}
-	recorrido.push_back(v);
+		ady.avanzar();
+	}	
+	recorrido.agregarFinal(v);
 }
 
 
-template <typename V, typename C>
-void mostrarRecorridoGrafo(const Grafo<V,C> & grafo, const list<int> & recorrido)
+template <typename C>
+void mostrarRecorridoGrafo(const Grafo<C> & grafo, const Lista<int> & recorrido, const char impr[])
 {
-	list<int>::const_iterator v = recorrido.begin();
-	while (v != recorrido.end())
+	Lista<int>::ConstIterador v = recorrido.devolverIterador();
+	while (!v.llegoAlFinal())
 	{
-		cout << grafo.devolverVertice(*v) << "\n";
-		v++;
+		cout << impr[v.elementoActual()] << "\n";
+		v.avanzar();
 	}
 }
 
 
 int main(int argc, char **argv)
 {
-	GrafoMapa<string, int> g;
+	Grafo<int> g;
+	enum {A, B, C, D, E, F, G};
+	g.agregarVertice(A);
+	g.agregarVertice(B);
+	g.agregarVertice(C);
+	g.agregarVertice(D);
+	g.agregarVertice(E);
+	g.agregarVertice(F);
+	g.agregarVertice(G);
 
-	g.agregarVertice(1, "A");
-	g.agregarVertice(2, "B");
-	g.agregarVertice(3, "C");
-	g.agregarVertice(4, "D");
-	g.agregarVertice(5, "E");
-	g.agregarVertice(6, "F");
-	g.agregarVertice(7, "G");
+	g.agregarArco(A, B, 1);
+	g.agregarArco(A, C, 1);
+	g.agregarArco(A, D, 1);
+	g.agregarArco(B, F, 1);
+	g.agregarArco(C, E, 1);	
+	g.agregarArco(D, G, 1);
+	g.agregarArco(E, F, 1);
 
-	g.agregarArco(1, 2, 1);
-	g.agregarArco(1, 3, 1);
-	g.agregarArco(1, 4, 1);
-	g.agregarArco(2, 6, 2);
-	g.agregarArco(3, 5, 3);	
-	g.agregarArco(4, 7, 4);
-	g.agregarArco(5, 6, 5);
-
-	list<int> recorrido;
-	vector<bool> visitados(7, false);
-	dfs(g, recorrido, 1, visitados);
-	mostrarRecorridoGrafo(g, recorrido);
+	Lista<int> recorrido;
+	const char impr[] = "ABCDEFG";
+	bool visitados[] = {false, false, false, false, false, false, false};
+	dfs(g, recorrido, 0, visitados);
+	mostrarRecorridoGrafo(g, recorrido, impr);
 	
 	return 0;
 }
