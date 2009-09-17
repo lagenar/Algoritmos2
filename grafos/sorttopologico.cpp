@@ -1,79 +1,85 @@
-#include "GrafoMapa.h"
+#include "Grafo.h"
+#include "Lista.h"
 #include <iostream>
-#include <string>
-#include <list>
-#include <vector>
 
 using namespace std;
 
-template <class V, class C>
-void sort_top(const Grafo<V,C> & grafo, list<int> & recorrido,
-	      int v, vector<bool> & visitados)
+template <typename C>
+void sort_top(const Grafo<C> & grafo, Lista<int> & recorrido,
+	      int v, bool visitado[])
 {
-	visitados[v] = true;
+	visitado[v] = true;
 
-	list<pair<int, C> > adyacentes;
+	Lista<typename Grafo<C>::Arco> adyacentes;
 	grafo.devolverAdyacentes(v, adyacentes);
-	typename list<pair<int, C> >::iterator ady;
-	for (ady = adyacentes.begin(); ady != adyacentes.end(); ady++)
+	typename Lista<typename Grafo<C>::Arco>::Iterador ady = adyacentes.devolverIterador();
+	while (!ady.llegoAlFinal())
 	{
-		int w = ady->first;
-		if (!visitados[w])
+		int w = ady.elementoActual().devolverAdyacente();
+		if (!visitado[w])
 		{
-			sort_top(grafo, recorrido, w, visitados);
+			sort_top(grafo, recorrido, w, visitado);
 		}
+		ady.avanzar();
 	}
-	recorrido.push_front(v);
+	recorrido.agregarPrincipio(v);
 }
 
-template <class V, class C>
-void sort_topologico(const Grafo<V,C> & grafo, list<int> & sort_t, int n)
+template <typename C>
+void sort_topologico(const Grafo<C> & grafo, Lista<int> & sort_t)
 {
-	vector<bool> visitados(n, false);
-	list<int> vertices;
+	int n = grafo.devolverLongitud();
+	bool visitado[n];
+	for (int i = 0; i < n; i++)
+	{
+		visitado[i] = false;
+	}
+	Lista<int> vertices;
   
 	grafo.devolverVertices(vertices);
-	list<int>::iterator it_vert;
-	for (it_vert = vertices.begin(); it_vert != vertices.end(); it_vert++)
+	Lista<int>::Iterador it_vert = vertices.devolverIterador();
+	while (!it_vert.llegoAlFinal())
 	{
-		int v = *it_vert;
-		if (!visitados[v])
+		int v = it_vert.elementoActual();
+		if (!visitado[v])
 		{
-			sort_top(grafo, sort_t, v, visitados);
+			sort_top(grafo, sort_t, v, visitado);
 		}
+		it_vert.avanzar();
 	}
 }
 
-template <typename V, typename C>
-void mostrarRecorridoGrafo(const Grafo<V,C> & grafo, const list<int> & recorrido)
+template <typename C>
+void mostrarRecorridoGrafo(const Grafo<C> & grafo, const Lista<int> & recorrido, const char impr[])
 {
-	list<int>::const_iterator v = recorrido.begin();
-	while (v != recorrido.end())
+	Lista<int>::ConstIterador v = recorrido.devolverIterador();
+	while (!v.llegoAlFinal())
 	{
-		cout << grafo.devolverVertice(*v) << "\n";
-		v++;
+		cout << impr[v.elementoActual()] << "\n";
+		v.avanzar();
 	}
 }
 
 int main(int argc, char **argv) 
 {
-	GrafoMapa<string, int> g;
+	Grafo<int> g;
+	enum {C1, C2, C3, C4, C5};
+	g.agregarVertice(C1);
+	g.agregarVertice(C2);
+	g.agregarVertice(C3);
+	g.agregarVertice(C4);
+	g.agregarVertice(C5);
 
-	g.agregarVertice(1, "C1");
-	g.agregarVertice(2, "C2");
-	g.agregarVertice(3, "C3");
-	g.agregarVertice(4, "C4");
-	g.agregarVertice(5, "C5");
+	g.agregarArco(C1, C3, 1);
+	g.agregarArco(C2, C3, 1);
+	g.agregarArco(C2, C4, 1);
+	g.agregarArco(C3, C5, 1);
+	g.agregarArco(C4, C5, 1);	
 
-	g.agregarArco(1, 3, 1);
-	g.agregarArco(2, 3, 1);
-	g.agregarArco(2, 4, 1);
-	g.agregarArco(3, 5, 1);
-	g.agregarArco(4, 5, 1);	
-
-	list<int> sort_t;
-	sort_topologico(g, sort_t, 5);
-	mostrarRecorridoGrafo(g, sort_t);
+	const char impr[] = "12345";
+	Lista<int> sort_t;
+	sort_topologico(g, sort_t);
+	mostrarRecorridoGrafo(g, sort_t, impr);
 	
 	return 0;
 }
