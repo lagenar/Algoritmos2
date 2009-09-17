@@ -1,36 +1,35 @@
-#include "GrafoMapa.h"
-#include <list>
-#include <string>
-#include <vector>
+#include "Grafo.h"
+#include "Lista.h"
+
 #include <iostream>
 
 using namespace std;
 
 #define NO_DESC -1
 
-bool es_arco_retroceso(int u, int v, const vector<int> & descubierto,
-		       const vector<int> & fin_desc)
+bool es_arco_retroceso(int u, int v, const int descubierto[],
+		       const int fin_desc[])
 {
 	return (descubierto[u] >= descubierto[v] &&
 		fin_desc[v] == NO_DESC);
 }
 
 
-template <class V, class C>
-bool tiene_ciclos(const Grafo<V,C> & grafo, int v, vector<bool> & visitado,
-		  vector<int> & descubierto, vector<int> & fin_desc, int & tiempo)
+template <typename C>
+bool tiene_ciclos(const Grafo<C> & grafo, int v, bool visitado[],
+		  int descubierto[], int fin_desc[], int & tiempo)
 {
 	visitado[v] = true;
 	descubierto[v] = tiempo;
 	tiempo++;
 
-	list<pair<int, C> > adyacentes;
+	Lista<typename Grafo<C>::Arco> adyacentes;
 	grafo.devolverAdyacentes(v, adyacentes);
-	typename list<pair<int, C> >::iterator ady = adyacentes.begin();
+	typename Lista<typename Grafo<C>::Arco>::Iterador ady = adyacentes.devolverIterador();
 	bool cicla = false;
-	while (ady != adyacentes.end() && !cicla)
+	while (!ady.llegoAlFinal() && !cicla)
 	{
-		int w = ady->first;
+		int w = ady.elementoActual().devolverAdyacente();
 		if (!visitado[w])
 		{
 			cicla = tiene_ciclos(grafo, w, visitado, descubierto,
@@ -40,59 +39,66 @@ bool tiene_ciclos(const Grafo<V,C> & grafo, int v, vector<bool> & visitado,
 		{
 			cicla = es_arco_retroceso(v, w, descubierto, fin_desc);			
 		}
-		ady++;
+		ady.avanzar();
 	}
 	fin_desc[v] = tiempo;
 	tiempo++;
 	return cicla;
 }
 
-template <class V, class C>
-bool tiene_ciclos_forest(const Grafo<V,C> & grafo, int n)
+template <typename C>
+bool tiene_ciclos_forest(const Grafo<C> & grafo)
 {
 	int tiempo = 0;
-	vector<bool> visitado(n, false);
-	vector<int> descubierto(n, NO_DESC);
-	vector<int> fin_desc(n, NO_DESC);
-
-	list<int> vertices;
-	grafo.devolverVertices(vertices);
-	list<int>::iterator vert = vertices.begin();
-	bool cicla = false;
-	while (vert != vertices.end() && !cicla)
+	const int n = grafo.devolverLongitud();
+	//se asume que los vértices fueron numerados de 0 a n-1
+	bool visitado[n];
+	int descubierto[n];
+	int fin_desc[n];
+	for (int i = 0; i < n; i++)
 	{
-		if (!visitado[*vert])
+		visitado[i] = false;
+		descubierto[i] = fin_desc[i] = NO_DESC;
+	}
+	Lista<int> vertices;
+	grafo.devolverVertices(vertices);
+	Lista<int>::Iterador vert = vertices.devolverIterador();
+	bool cicla = false;
+	while (!vert.llegoAlFinal() && !cicla)
+	{
+		int v = vert.elementoActual();
+		if (!visitado[v])
 		{
-			cicla = tiene_ciclos(grafo, *vert, visitado,
+			cicla = tiene_ciclos(grafo, v, visitado,
 					     descubierto, fin_desc, tiempo);
 		}
-		vert++;
+		vert.avanzar();
 	}
 	return cicla;
 }
 
 int main(int argc, char **argv)
 {
-	GrafoMapa<string, int> g;
+	Grafo<int> g;
+	enum {A, B, C, D, E, F, G};
+	g.agregarVertice(A);
+	g.agregarVertice(B);
+	g.agregarVertice(C);
+	g.agregarVertice(D);
+	g.agregarVertice(E);
+	g.agregarVertice(F);
+	g.agregarVertice(G);
 
-	g.agregarVertice(1, "A");
-	g.agregarVertice(2, "B");
-	g.agregarVertice(3, "C");
-	g.agregarVertice(4, "D");
-	g.agregarVertice(5, "E");
-	g.agregarVertice(6, "F");
-	g.agregarVertice(7, "G");
+	g.agregarArco(A, B, 1);
+	g.agregarArco(A, C, 1);
+	g.agregarArco(A, D, 1);
+	g.agregarArco(B, F, 1);
+	g.agregarArco(C, E, 1);	
+	g.agregarArco(D, E, 1);
+	g.agregarArco(E, A, 1);
+	g.agregarArco(E, F, 1);
 
-	g.agregarArco(1, 2, 1);
-	g.agregarArco(1, 3, 1);
-	g.agregarArco(1, 4, 1);
-	g.agregarArco(2, 6, 2);
-	g.agregarArco(3, 5, 3);	
-	g.agregarArco(4, 7, 4);
-	g.agregarArco(5, 1, 1);
-	g.agregarArco(5, 6, 5);
-
-	if (tiene_ciclos_forest(g, 8)) 
+	if (tiene_ciclos_forest(g)) 
 	{
 		cout << "El grafo tiene ciclos" << endl;
 	}
