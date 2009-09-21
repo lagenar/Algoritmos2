@@ -28,40 +28,33 @@ bool camino_sin_color(const Grafo<C> & grafo, int origen, int destino,
 	visitado[origen] = true;     
 
 	if (colores[origen] == prohibido || colores[destino] == prohibido)
-	{
 		return false;
-	}
-	else
-	{	    
-		camino.agregarFinal(origen);
-		if (origen == destino)
-		{
-			return true;
-		}
-		else
-		{
-			Lista<typename Grafo<C>::Arco> adyacentes ;
-			grafo.devolverAdyacentes(origen, adyacentes);
-			typename Lista<typename Grafo<C>::Arco>::Iterador ady = adyacentes.devolverIterador();
-			bool encontro_camino = false;
 
-			while (!ady.llegoAlFinal() && !encontro_camino)
-			{
-				int w = ady.elementoActual().devolverAdyacente();
-				if (!visitado[w])
-				{
-					encontro_camino = camino_sin_color(grafo, w, destino, visitado,
-									   camino, colores, prohibido);
-				}
-				ady.avanzar();
-			}
-			if (!encontro_camino)
-			{
-				camino.eliminarFinal();
-			}
-			return encontro_camino;
+	camino.agregarFinal(origen);
+	if (origen == destino)
+		return true;
+
+	Lista<typename Grafo<C>::Arco> adyacentes ;
+	grafo.devolverAdyacentes(origen, adyacentes);
+	typename Lista<typename Grafo<C>::Arco>::Iterador ady = adyacentes.devolverIterador();
+	bool encontro_camino = false;
+
+	while (!ady.llegoAlFinal() && !encontro_camino)
+	{
+		int w = ady.elementoActual().devolverAdyacente();
+		if (!visitado[w])
+		{
+			encontro_camino = camino_sin_color(grafo, w, destino, visitado,
+							   camino, colores, prohibido);
 		}
+		ady.avanzar();
 	}
+	if (!encontro_camino)
+	{
+		camino.eliminarFinal();
+	}
+	return encontro_camino;
+
 }
 
 void mostrar_camino(const Lista<int> & camino, const char impr[])

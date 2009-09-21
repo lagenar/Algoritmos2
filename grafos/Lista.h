@@ -181,7 +181,7 @@ template <typename Elem> Lista<Elem>::Lista()
 template <typename Elem> Lista<Elem>::Lista(const Lista & otraLista)
 {
 	ConstIterador it = otraLista.devolverIterador();
-	while (!it.llegoAlfinal())
+	while (!it.llegoAlFinal())
 	{
 		agregarFinal(it.elementoActual());
 		it.avanzar();

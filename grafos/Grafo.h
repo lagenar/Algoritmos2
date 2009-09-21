@@ -212,7 +212,7 @@ template <typename C> bool Grafo<C>::existeArco(int origen, int destino) const
 	else
 	{
 		ListaArc lista_arc = it_vert.elementoActual().segundo;
-		ConstItArc it_arc = lista_arc.devolverIterador();
+		ItArc it_arc = lista_arc.devolverIterador();
 		bool existe = false;
 		while (!it_arc.llegoAlFinal() && !existe)
 		{
@@ -228,9 +228,9 @@ template <typename C> const C & Grafo<C>::costoArco(int origen, int destino) con
 	ConstItVert it_vert = _buscarVertice(origen);
 	
 	ListaArc lista_arc = it_vert.elementoActual().segundo;
-	ConstItArc it_arc = lista_arc.devolverIterador();
+	ItArc it_arc = lista_arc.devolverIterador();
 	while (!it_arc.llegoAlFinal() &&
-	       it_arc->elementoActual().devolverAdyacente() != destino)
+	       it_arc.elementoActual().devolverAdyacente() != destino)
 	{
 		it_arc.avanzar();
 	}
