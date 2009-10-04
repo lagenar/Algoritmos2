@@ -53,6 +53,8 @@ public:
 	// Indica la cantidad de vértices del grafo
 	int devolverLongitud() const;
 
+	int devolverCantArcos() const;
+
 	bool existeVertice(int vertice) const;
 
 	bool existeArco(int origen, int destino) const;
@@ -90,6 +92,7 @@ private:
 	typedef typename ListaVert::Iterador ItVert;
 
 	int cantidad_vertices;
+	int cant_arcos;
 	ListaVert vertices;
 	
 	ItVert _buscarVertice(int vertice);
@@ -131,7 +134,7 @@ template <typename C> const C & Grafo<C>::Arco::devolverCosto() const
 
 template <typename C> Grafo<C>::Grafo()
 {
-	cantidad_vertices = 0;
+	cantidad_vertices = cant_arcos = 0;
 }
 
 template <typename C> Grafo<C>::Grafo(const Grafo & otroGrafo)
@@ -158,6 +161,12 @@ template <typename C> int Grafo<C>::devolverLongitud() const
 {
 	return cantidad_vertices;
 }
+
+template <typename C> int Grafo<C>::devolverCantArcos() const
+{
+	return cant_arcos;
+}
+
 
 template <typename C> typename Grafo<C>::ItVert Grafo<C>::_buscarVertice(int vertice)
 {
@@ -312,18 +321,21 @@ template <typename C> void Grafo<C>::agregarArco(int origen, int destino, const 
 	Arco arc(destino, costo);
 	ItVert it_vert = _buscarVertice(origen);
 	it_vert.elementoActual().segundo.agregarFinal(arc);
+	cant_arcos++;
 }
 
 template <typename C> void Grafo<C>::eliminarArco(int origen, int destino)
 {
 	ItVert it_vert = _buscarVertice(origen);
 	_eliminarArcoVertice(it_vert.elementoActual().segundo, destino);
+	cant_arcos--;
 }
 
 template <typename C> void Grafo<C>::vaciar()
 {
 	vertices.vaciar();
 	cantidad_vertices = 0;
+	cant_arcos = 0;
 }
 
 #endif /* GRAFO_H_ */
